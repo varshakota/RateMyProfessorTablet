@@ -13,11 +13,26 @@ public final class R {
     public static final class drawable {
         public static final int ic_launcher=0x7f020000;
     }
+    public static final class id {
+        public static final int name=0x7f050000;
+    }
     public static final class layout {
         public static final int main=0x7f030000;
+        public static final int professor_listview_row=0x7f030001;
     }
     public static final class string {
-        public static final int app_name=0x7f040001;
-        public static final int hello=0x7f040000;
+        public static final int Comments=0x7f040007;
+        public static final int Email=0x7f040005;
+        public static final int FirstName=0x7f040001;
+        public static final int LastName=0x7f040002;
+        public static final int Office=0x7f040003;
+        public static final int Phone=0x7f040004;
+        public static final int Rating=0x7f040006;
+        public static final int app_name=0x7f040000;
+        public static final int average=0x7f040009;
+        public static final int message=0x7f04000c;
+        public static final int rateButton=0x7f040008;
+        public static final int submit=0x7f04000b;
+        public static final int totalRatings=0x7f04000a;
     }
 }
