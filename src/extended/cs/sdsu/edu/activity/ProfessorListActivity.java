@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,18 +22,24 @@ public class ProfessorListActivity extends ListActivity {
 		setContentView(R.layout.main);
 		ProfessorService professorService = new ProfessorService();
 		refreshProfessorList(professorService);
-		// professorService.getProfessorList(this);
 	}
 
 	@Override
 	protected void onListItemClick(ListView listView, View view, int position,
 			long id) {
 		super.onListItemClick(listView, view, position, id);
-		// Professor professor = (Professor)
-		// listView.getItemAtPosition(position);
-		// int selectedProfessorId = professor.getId();
+		Professor professor = (Professor) listView.getItemAtPosition(position);
+		int selectedProfessorId = professor.getId();
 		// System.out.println(selectedProfessorId);
-		System.out.println("Hi");
+
+		Intent professorDetails = new Intent();
+		professorDetails
+				.setClassName("extended.cs.sdsu.edu.activity",
+						"extended.cs.sdsu.edu.activity.SelectedProfessorDetailsActivity");
+		professorDetails
+				.setAction("cs.assignment.intent.action.PROFESSOR_DETAILS");
+		professorDetails.putExtra("selectedProfessorID", selectedProfessorId);
+		startActivity(professorDetails);
 	}
 
 	private void refreshProfessorList(ProfessorService professorService) {
