@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+    
+    <TextView
+            android:padding="3dip"
+            android:text="@string/FirstName" 
+            android:layout_width="wrap_content"
+            android:layout_height="40dip"/>
+    
+    <TextView
+            android:padding="3dip"
+            android:text="@+id/firstName" 
+            android:layout_width="match_parent"
+            android:layout_height="40dip"/>
+    <TextView
+            android:padding="3dip"
+            android:text="@string/LastName" 
+            android:layout_width="wrap_content"
+            android:layout_height="40dip"/>
+    
+    <TextView
+            android:padding="3dip"
+            android:text="@+id/lastName" 
+            android:layout_width="match_parent"
+            android:layout_height="40dip"/>
+   
+
+     <TextView
+            android:padding="3dip"
+            android:text="@string/Phone" 
+            android:layout_width="wrap_content"
+            android:layout_height="40dip"/>
+    
+    <TextView
+            android:padding="2dip"
+            android:text="@+id/phone" 
+            android:layout_width="match_parent"
+            android:layout_height="30dip"/>
+    
+     <TextView
+            android:padding="3dip"
+            android:text="@string/Email" 
+            android:layout_width="wrap_content"
+            android:layout_height="40dip"/>
+    
+    <TextView
+            android:padding="3dip"
+            android:text="@+id/email" 
+            android:layout_width="match_parent"
+            android:layout_height="40dip"/>
+    
+    <TextView
+            android:padding="3dip"
+            android:text="@string/Rating" 
+            android:layout_width="wrap_content"
+            android:layout_height="40dip"/>
+    
+    <TextView
+            android:padding="3dip"
+            android:text="@+id/average" 
+            android:layout_width="match_parent"
+            android:layout_height="40dip"/>
+    
+    <TextView
+            android:padding="3dip"
+            android:text="@+id/totalRating" 
+            android:layout_width="match_parent"
+            android:layout_height="40dip"/>
+</LinearLayout>

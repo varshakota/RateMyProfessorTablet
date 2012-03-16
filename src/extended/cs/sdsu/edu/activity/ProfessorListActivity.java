@@ -45,11 +45,18 @@ public class ProfessorListActivity extends ListActivity {
 	private void refreshProfessorList(ProfessorService professorService) {
 		try {
 			professorList = professorService.getProfessorList(this);
-
 			professorListAdapter = new ProfessorListAdapter(professorList, this);
 			setListAdapter(professorListAdapter);
 			professorListAdapter.refreshList(professorList);
 			professorListAdapter.notifyDataSetChanged();
+
+			// List<Professor> modifiedProfessorList = new
+			// ArrayList<Professor>();
+			// modifiedProfessorList = professorService
+			// .getModifiedProfessorList(this);
+			// professorListAdapter.refreshList(modifiedProfessorList);
+			// professorListAdapter.notifyDataSetChanged();
+
 		} catch (Exception e) {
 			Log.e("RateMyProfessor", e.getMessage(), e);
 		}
