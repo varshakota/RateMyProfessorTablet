@@ -3,11 +3,12 @@ package extended.cs.sdsu.edu.activity;
 import android.app.Activity;
 import android.os.Bundle;
 import android.widget.TextView;
+import extended.cs.sdsu.edu.domain.Professor;
 import extended.cs.sdsu.edu.service.ProfessorService;
 
 public class SelectedProfessorDetailsActivity extends Activity {
 
-	private TextView firstName;
+	private TextView firstNameText;
 	private TextView lastName;
 	private TextView phone;
 	private TextView email;
@@ -19,7 +20,7 @@ public class SelectedProfessorDetailsActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.selected_professor_details);
 
-		firstName = (TextView) findViewById(R.id.firstName);
+		firstNameText = (TextView) findViewById(R.id.firstName);
 		lastName = (TextView) findViewById(R.id.lastName);
 		phone = (TextView) findViewById(R.id.phone);
 		email = (TextView) findViewById(R.id.email);
@@ -30,11 +31,17 @@ public class SelectedProfessorDetailsActivity extends Activity {
 		selectedProfessorId = professorId.getInt("selectedProfessorID");
 	}
 
+	@Override
 	protected void onResume() {
-		ProfessorService professorDetails = new ProfessorService();
+		ProfessorService professorDetailsService = new ProfessorService();
+		Professor professorDetails = new Professor();
 		try {
-			professorDetails.getProfessorDetails(selectedProfessorId);
 
+			// professorDetails =
+			professorDetailsService.getProfessorDetails(selectedProfessorId,
+					this);
+			// System.out.println(professorDetails.getFirstName());
+			// firstNameText.setText("JHJJ");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

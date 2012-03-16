@@ -57,4 +57,21 @@ public class DatabaseAccessor {
 		return professorList;
 	}
 
+	public void insertProfessorDetails(int selectedProfessorId,
+			Professor professorDetails, Context context) {
+		System.out.println("In dbAccessor insert details");
+		DatabaseHelper dbHelper = new DatabaseHelper(context);
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+		ContentValues cvProfessorDetails = new ContentValues();
+		cvProfessorDetails.put("PHONE", professorDetails.getPhone());
+		cvProfessorDetails.put("EMAIL", professorDetails.getEmail());
+		cvProfessorDetails.put("AVERAGE", professorDetails.getAverage());
+		cvProfessorDetails.put("TOTALRATING",
+				professorDetails.getTotalRatings());
+
+		db.update("PROFESSOR", cvProfessorDetails, "_ID=?",
+				new String[] { String.valueOf(selectedProfessorId) });
+
+	}
 }

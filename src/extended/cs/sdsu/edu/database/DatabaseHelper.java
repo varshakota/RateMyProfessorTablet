@@ -16,7 +16,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase professordb) {
 		professordb.execSQL("CREATE TABLE " + "PROFESSOR " + "(" + "_ID "
 				+ "INTEGER PRIMARY KEY," + "LASTNAME " + "TEXT," + "FIRSTNAME "
-				+ "TEXT" + ");");
+				+ "TEXT," + "PHONE " + "TEXT," + "EMAIL " + "TEXT,"
+				+ "AVERAGE " + "FLOAT," + "TOTALRATING " + "FLOAT" + ");");
 	}
 
 	@Override

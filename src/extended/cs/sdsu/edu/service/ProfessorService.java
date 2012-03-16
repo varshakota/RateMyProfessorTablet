@@ -94,7 +94,7 @@ public class ProfessorService {
 	 * modifiedProfessorList; }
 	 */
 
-	public void getProfessorDetails(int selectedProfessorId)
+	public void getProfessorDetails(int selectedProfessorId, Context context)
 			throws InterruptedException, ExecutionException, JSONException {
 
 		String url = "http://bismarck.sdsu.edu/rateme/instructor/"
@@ -104,7 +104,12 @@ public class ProfessorService {
 		JSONObject jsonProfessorDetails = new JSONObject(responseBody);
 		Professor professorDetails = jsonObjectMapper
 				.covertJsonObjectToProfessor(jsonProfessorDetails);
-		System.out.println(professorDetails);
+		DatabaseAccessor professorDetailsAccessor = new DatabaseAccessor();
+		System.out.println("Befor insert to db");
+		professorDetailsAccessor.insertProfessorDetails(selectedProfessorId,
+				professorDetails, context);
+		System.out.println("Inserted to db");
+		// return professorDetails;
 	}
 
 	public void getProfessorComments() {
