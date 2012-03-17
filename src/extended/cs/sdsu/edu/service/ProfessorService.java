@@ -94,22 +94,59 @@ public class ProfessorService {
 	 * modifiedProfessorList; }
 	 */
 
-	public void getProfessorDetails(int selectedProfessorId, Context context)
-			throws InterruptedException, ExecutionException, JSONException {
+	public Professor getProfessorDetails(int selectedProfessorId,
+			Context context) throws InterruptedException, ExecutionException,
+			JSONException {
 
-		String url = "http://bismarck.sdsu.edu/rateme/instructor/"
-				+ selectedProfessorId;
-		NetworkConnection networkConnection = new NetworkConnection();
-		String responseBody = networkConnection.execute(url).get();
-		JSONObject jsonProfessorDetails = new JSONObject(responseBody);
-		Professor professorDetails = jsonObjectMapper
-				.covertJsonObjectToProfessor(jsonProfessorDetails);
-		DatabaseAccessor professorDetailsAccessor = new DatabaseAccessor();
-		System.out.println("Befor insert to db");
-		professorDetailsAccessor.insertProfessorDetails(selectedProfessorId,
-				professorDetails, context);
-		System.out.println("Inserted to db");
-		// return professorDetails;
+		Professor professorDetailsFromDb = new Professor();
+		Professor nameIdFromDb = new Professor();
+		Cursor result = databaseAccessor.selectProfessorDetails(context,
+				selectedProfessorId);
+		int rowCount = result.getCount();
+		// int count = databaseAccessor.ckeckCursorResult(result);
+
+		if (rowCount == 0) {
+			String url = "http://bismarck.sdsu.edu/rateme/instructor/"
+					+ selectedProfessorId;
+			NetworkConnection networkConnection = new NetworkConnection();
+			String responseBody = networkConnection.execute(url).get();
+			JSONObject jsonProfessorDetails = new JSONObject(responseBody);
+			Professor professorDetails = new Professor();
+			professorDetails = jsonObjectMapper
+					.covertJsonObjectToProfessor(jsonProfessorDetails);
+			DatabaseAccessor professorDetailsAccessor = new DatabaseAccessor();
+			System.out.println("Befor insert to db");
+			professorDetailsAccessor.insertProfessorDetails(
+					selectedProfessorId, professorDetails, context);
+			System.out.println("Inserted to db");
+			Cursor res = databaseAccessor.selectProfessorDetails(context,
+					selectedProfessorId);
+
+			professorDetailsFromDb = databaseAccessor
+					.retrieveProfessorDetailsFromDb(res);
+
+			nameIdFromDb = databaseAccessor.retrieveProfessorNameIdFromDb(
+					context, selectedProfessorId);
+			professorDetailsFromDb.setId(nameIdFromDb.getId());
+			professorDetailsFromDb.setFirstName(nameIdFromDb.getFirstName());
+			professorDetailsFromDb.setLastName(nameIdFromDb.getLastName());
+			System.out
+					.println("Retreieved details from db after db insert successful");
+
+		} else {
+			// Cursor res = databaseAccessor.selectProfessorDetails(context,
+			// selectedProfessorId);
+			professorDetailsFromDb = databaseAccessor
+					.retrieveProfessorDetailsFromDb(result);
+			nameIdFromDb = databaseAccessor.retrieveProfessorNameIdFromDb(
+					context, selectedProfessorId);
+			professorDetailsFromDb.setId(nameIdFromDb.getId());
+			professorDetailsFromDb.setFirstName(nameIdFromDb.getFirstName());
+			professorDetailsFromDb.setLastName(nameIdFromDb.getLastName());
+			System.out.println("Retreieved details from db");
+		}
+
+		return professorDetailsFromDb;
 	}
 
 	public void getProfessorComments() {

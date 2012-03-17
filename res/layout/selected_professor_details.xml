@@ -5,68 +5,90 @@
     android:orientation="vertical" >
     
     <TextView
-            android:padding="3dip"
+            
             android:text="@string/FirstName" 
             android:layout_width="wrap_content"
-            android:layout_height="40dip"/>
-    
-    <TextView
-            android:padding="3dip"
-            android:text="@+id/firstName" 
-            android:layout_width="match_parent"
-            android:layout_height="40dip"/>
-    <TextView
-            android:padding="3dip"
-            android:text="@string/LastName" 
-            android:layout_width="wrap_content"
-            android:layout_height="40dip"/>
-    
-    <TextView
-            android:padding="3dip"
-            android:text="@+id/lastName" 
-            android:layout_width="match_parent"
-            android:layout_height="40dip"/>
-   
-
-     <TextView
-            android:padding="3dip"
-            android:text="@string/Phone" 
-            android:layout_width="wrap_content"
-            android:layout_height="40dip"/>
+            android:layout_height="30dip"/>
     
     <TextView
             android:padding="2dip"
-            android:text="@+id/phone" 
+            android:id="@+id/firstName" 
+            android:layout_width="match_parent"
+            android:layout_height="30dip"/>
+    <TextView
+            
+            android:text="@string/LastName" 
+            android:layout_width="wrap_content"
+            android:layout_height="30dip"/>
+    
+    <TextView
+            android:padding="2dip"
+            android:id="@+id/lastName" 
+            android:layout_width="match_parent"
+            android:layout_height="30dip"/>
+   
+
+    <TextView
+            
+            android:text="@string/Office" 
+            android:layout_width="wrap_content"
+            android:layout_height="30dip"/>
+    
+    <TextView
+            android:padding="2dip"
+            android:id="@+id/office" 
             android:layout_width="match_parent"
             android:layout_height="30dip"/>
     
      <TextView
-            android:padding="3dip"
+            
+            android:text="@string/Phone" 
+            android:layout_width="wrap_content"
+            android:layout_height="30dip"/>
+    
+    <TextView
+            android:padding="2dip"
+            android:id="@+id/phone" 
+            android:layout_width="match_parent"
+            android:layout_height="30dip"/>
+    
+     <TextView
+            
             android:text="@string/Email" 
             android:layout_width="wrap_content"
-            android:layout_height="40dip"/>
+            android:layout_height="30dip"/>
     
     <TextView
-            android:padding="3dip"
-            android:text="@+id/email" 
+            android:padding="2dip"
+            android:id="@+id/email" 
             android:layout_width="match_parent"
-            android:layout_height="40dip"/>
+            android:layout_height="30dip"/>
     
     <TextView
-            android:padding="3dip"
+            
             android:text="@string/Rating" 
             android:layout_width="wrap_content"
-            android:layout_height="40dip"/>
+            android:layout_height="30dip"/>
+    <TextView
+            
+            android:text="@string/average" 
+            android:layout_width="wrap_content"
+            android:layout_height="30dip"/>
     
     <TextView
-            android:padding="3dip"
-            android:text="@+id/average" 
+            android:padding="2dip"
+            android:id="@+id/average" 
             android:layout_width="match_parent"
-            android:layout_height="40dip"/>
+            android:layout_height="30dip"/>
+    <TextView
+            
+            android:text="@string/totalRatings" 
+            android:layout_width="wrap_content"
+            android:layout_height="30dip"/>
     
     <TextView
-            android:padding="3dip"
-            android:text="@+id/totalRating" 
+            android:padding="2dip"
+            android:id="@+id/totalRating" 
             android:layout_width="match_parent"
-            android:layout_height="40dip"/>
+            android:layout_height="30dip"/>
 </LinearLayout>

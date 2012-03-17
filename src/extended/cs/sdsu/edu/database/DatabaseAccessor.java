@@ -28,9 +28,9 @@ public class DatabaseAccessor {
 		for (int i = 0; i < professorListData.size(); i++) {
 			Professor professorFromList = professorListData.get(i);
 			ContentValues cv = new ContentValues();
-			cv.put("_ID", professorFromList.getId());
-			cv.put("FIRSTNAME", professorFromList.getFirstName());
-			cv.put("LASTNAME", professorFromList.getLastName());
+			cv.put("ID", professorFromList.getId());
+			cv.put("firstname", professorFromList.getFirstName());
+			cv.put("lastname", professorFromList.getLastName());
 			db.insert("PROFESSOR", null, cv);
 		}
 	}
@@ -43,13 +43,13 @@ public class DatabaseAccessor {
 		while (result.isAfterLast() == false) {
 			Professor professorDb = new Professor();
 
-			professorDb.setId(result.getInt(result.getColumnIndex("_ID")));
+			professorDb.setId(result.getInt(result.getColumnIndex("ID")));
 
 			professorDb.setLastName(result.getString(result
-					.getColumnIndex("LASTNAME")));
+					.getColumnIndex("lastname")));
 
 			professorDb.setFirstName(result.getString(result
-					.getColumnIndex("FIRSTNAME")));
+					.getColumnIndex("firstname")));
 			professorList.add(professorDb);
 			result.moveToNext();
 		}
@@ -64,14 +64,63 @@ public class DatabaseAccessor {
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 
 		ContentValues cvProfessorDetails = new ContentValues();
-		cvProfessorDetails.put("PHONE", professorDetails.getPhone());
-		cvProfessorDetails.put("EMAIL", professorDetails.getEmail());
-		cvProfessorDetails.put("AVERAGE", professorDetails.getAverage());
-		cvProfessorDetails.put("TOTALRATING",
+		cvProfessorDetails.put("ID", selectedProfessorId);
+		cvProfessorDetails.put("office", professorDetails.getOffice());
+		cvProfessorDetails.put("phone", professorDetails.getPhone());
+		cvProfessorDetails.put("email", professorDetails.getEmail());
+		cvProfessorDetails.put("average", professorDetails.getAverage());
+		cvProfessorDetails.put("totalrating",
 				professorDetails.getTotalRatings());
 
-		db.update("PROFESSOR", cvProfessorDetails, "_ID=?",
-				new String[] { String.valueOf(selectedProfessorId) });
+		db.insert("PROFESSOR_DETAILS", null, cvProfessorDetails);
 
+	}
+
+	public Cursor selectProfessorDetails(Context context,
+			int selectedProfessorId) {
+		DatabaseHelper dbHelper = new DatabaseHelper(context);
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		Cursor result = db
+				.rawQuery(
+						"SELECT office,phone,email,average,totalrating from PROFESSOR_DETAILS WHERE ID=?",
+						new String[] { String.valueOf(selectedProfessorId) });
+		return result;
+	}
+
+	public Professor retrieveProfessorDetailsFromDb(Cursor result) {
+		Professor professorDetailsFromDb = new Professor();
+		result.moveToFirst();
+
+		professorDetailsFromDb.setOffice(result.getString(result
+				.getColumnIndex("office")));
+		professorDetailsFromDb.setPhone(result.getString(result
+				.getColumnIndex("phone")));
+		professorDetailsFromDb.setEmail(result.getString(result
+				.getColumnIndex("email")));
+		professorDetailsFromDb.setAverage(result.getFloat(result
+				.getColumnIndex("average")));
+		professorDetailsFromDb.setTotalRatings(result.getInt(result
+				.getColumnIndex("totalrating")));
+		result.close();
+		// retrieveProfessorIdNameFromDb(result, professorDetailsFromDb);
+		return professorDetailsFromDb;
+	}
+
+	public Professor retrieveProfessorNameIdFromDb(Context context,
+			int selectedProfessorId) {
+		DatabaseHelper dbHelper = new DatabaseHelper(context);
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		Professor nameIDFromDb = new Professor();
+		Cursor result = db.rawQuery("SELECT * from PROFESSOR WHERE ID=?",
+				new String[] { String.valueOf(selectedProfessorId) });
+		result.moveToFirst();
+		nameIDFromDb.setId(result.getInt(result.getColumnIndex("ID")));
+		nameIDFromDb.setLastName(result.getString(result
+				.getColumnIndex("lastname")));
+
+		nameIDFromDb.setFirstName(result.getString(result
+				.getColumnIndex("firstname")));
+		result.close();
+		return nameIDFromDb;
 	}
 }
