@@ -13,4 +13,6 @@
 	<string name="totalRatings">TotalRatings</string>
 	<string name="submit">SUBMIT</string>
 	<string name="message">Rating and Comments submitted successfully!</string>
+	<string name="menu_comments">COMMENTS</string>
+	<string name="menu_rate">RATE</string>
 </resources>

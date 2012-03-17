@@ -1,8 +1,13 @@
 package extended.cs.sdsu.edu.activity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 import extended.cs.sdsu.edu.domain.Professor;
 import extended.cs.sdsu.edu.service.ProfessorService;
 
@@ -58,5 +63,36 @@ public class SelectedProfessorDetailsActivity extends Activity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.menu_action, menu);
+		return true;
+
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_comments:
+			Toast.makeText(this, "Comments", Toast.LENGTH_SHORT).show();
+			Intent professorComments = new Intent();
+			professorComments
+					.setClassName("extended.cs.sdsu.edu.activity",
+							"extended.cs.sdsu.edu.activity.ViewProfessorCommentsActivity");
+			professorComments
+					.setAction("cs.assignment.intent.action.PROFESSOR_COMMENTS");
+			startActivity(professorComments);
+			// return true;
+
+		case R.id.menu_rate:
+			Toast.makeText(this, "Rate", Toast.LENGTH_SHORT).show();
+			return true;
+
+		}
+		return true;
 	}
 }

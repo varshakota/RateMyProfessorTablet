@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_comments"
+          android:title="@string/menu_comments"
+          android:showAsAction="ifRoom|withText" />
+    <item android:id="@+id/menu_rate"
+          android:title="@string/menu_rate"
+          android:showAsAction="ifRoom|withText" />
+    
+</menu>
