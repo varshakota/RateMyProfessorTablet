@@ -9,7 +9,7 @@ import org.json.JSONObject;
 
 public class JSONObjectMapper {
 
-	public List<Professor> jsonProfessorArrayToList(JSONArray jsonArray) {
+	public List<Professor> convertJsonProfessorArrayToList(JSONArray jsonArray) {
 		List<Professor> professorList = new ArrayList<Professor>();
 		for (int i = 0; i < jsonArray.length(); i++) {
 			try {
@@ -55,5 +55,33 @@ public class JSONObjectMapper {
 			professor.setTotalRatings(intTotalRatings);
 		}
 		return professor;
+	}
+
+	public List<Comment> convertJsonCommentsArrayToList(int selectedProfessorId,
+			JSONArray jsonArrayComments) throws JSONException {
+		JSONObject professorCommentsJson = new JSONObject();
+		List<Comment> professorCommentsList = new ArrayList<Comment>();
+		Comment professorComments = null;
+		for (int i = 0; i < jsonArrayComments.length(); i++) {
+			professorComments = new Comment();
+			professorCommentsJson = jsonArrayComments.getJSONObject(i);
+			professorComments.setCommentsId(professorCommentsJson.getInt("id"));
+			professorComments.setText(professorCommentsJson.getString("text"));
+			professorComments.setDate(professorCommentsJson.getString("date"));
+			professorComments.setProfessorId(selectedProfessorId);
+			professorCommentsList.add(professorComments);
+		}
+		return professorCommentsList;
+	}
+
+	public Professor getRating(JSONObject jsonRating)
+			throws NumberFormatException, JSONException {
+		Professor professorRating = new Professor();
+		Float fAverage = new Float(jsonRating.getString("average"));
+		professorRating.setAverage(fAverage);
+		Integer totalRatings = new Integer(jsonRating.getString("totalRatings"));
+		professorRating.setTotalRatings(totalRatings);
+		return professorRating;
+
 	}
 }

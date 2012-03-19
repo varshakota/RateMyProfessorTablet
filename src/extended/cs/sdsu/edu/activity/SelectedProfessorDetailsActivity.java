@@ -3,6 +3,7 @@ package extended.cs.sdsu.edu.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import extended.cs.sdsu.edu.domain.Professor;
 import extended.cs.sdsu.edu.service.ProfessorService;
+import extended.cs.sdsu.edu.service.ApplicationFactory;
 
 public class SelectedProfessorDetailsActivity extends Activity {
 
@@ -21,6 +23,7 @@ public class SelectedProfessorDetailsActivity extends Activity {
 	private TextView averageTextView;
 	private TextView totalRatingTextView;
 	private int selectedProfessorId;
+	private ProfessorService professorDetailsService;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -36,18 +39,19 @@ public class SelectedProfessorDetailsActivity extends Activity {
 
 		Bundle professorId = getIntent().getExtras();
 		selectedProfessorId = professorId.getInt("selectedProfessorID");
+		professorDetailsService = ApplicationFactory
+				.getProfessorService(this);
 
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		ProfessorService professorDetailsService = new ProfessorService();
 		Professor professorDetails = new Professor();
 		try {
 
-			professorDetails = professorDetailsService.getProfessorDetails(
-					selectedProfessorId, this);
+			professorDetails = professorDetailsService
+					.getProfessorDetails(selectedProfessorId);
 			firstNameTextView.setText(professorDetails.getFirstName());
 			lastNameTextView.setText(professorDetails.getLastName());
 			officeTextView.setText(professorDetails.getOffice());
@@ -57,11 +61,8 @@ public class SelectedProfessorDetailsActivity extends Activity {
 					.getAverage()));
 			totalRatingTextView.setText(String.valueOf(professorDetails
 					.getTotalRatings()));
-			// System.out.println(professorDetails.getFirstName());
-			// firstNameText.setText("JHJJ");
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e("RateMyProfessorTablet", e.getMessage(), e);
 		}
 	}
 
@@ -71,7 +72,6 @@ public class SelectedProfessorDetailsActivity extends Activity {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.menu_action, menu);
 		return true;
-
 	}
 
 	@Override
@@ -79,17 +79,28 @@ public class SelectedProfessorDetailsActivity extends Activity {
 		switch (item.getItemId()) {
 		case R.id.menu_comments:
 			Toast.makeText(this, "Comments", Toast.LENGTH_SHORT).show();
-			Intent professorComments = new Intent();
-			professorComments
+			Intent professorCommentsIntent = new Intent();
+			professorCommentsIntent
 					.setClassName("extended.cs.sdsu.edu.activity",
 							"extended.cs.sdsu.edu.activity.ViewProfessorCommentsActivity");
-			professorComments
+			professorCommentsIntent
 					.setAction("cs.assignment.intent.action.PROFESSOR_COMMENTS");
-			startActivity(professorComments);
-			// return true;
+			professorCommentsIntent.putExtra("selectedProfessorID",
+					selectedProfessorId);
+			startActivity(professorCommentsIntent);
+			// finish();
+			return true;
 
 		case R.id.menu_rate:
 			Toast.makeText(this, "Rate", Toast.LENGTH_SHORT).show();
+			Intent rateProfessorIntent = new Intent();
+			rateProfessorIntent.setClassName("extended.cs.sdsu.edu.activity",
+					"extended.cs.sdsu.edu.activity.RateProfessorActivity");
+			rateProfessorIntent
+					.setAction("cs.assignment.intent.action.RATE_PROFESSOR");
+			rateProfessorIntent.putExtra("selectedProfessorID",
+					selectedProfessorId);
+			startActivity(rateProfessorIntent);
 			return true;
 
 		}

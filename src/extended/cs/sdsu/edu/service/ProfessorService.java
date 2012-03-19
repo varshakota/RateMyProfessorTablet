@@ -4,161 +4,125 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.http.HttpResponse;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.database.Cursor;
 import extended.cs.sdsu.edu.database.DatabaseAccessor;
+import extended.cs.sdsu.edu.domain.Comment;
 import extended.cs.sdsu.edu.domain.JSONObjectMapper;
 import extended.cs.sdsu.edu.domain.Professor;
-import extended.cs.sdsu.edu.network.NetworkConnection;
+import extended.cs.sdsu.edu.network.GETNetworkConnection;
+import extended.cs.sdsu.edu.network.POSTNetworkConnection;
 
 public class ProfessorService {
 	private JSONObjectMapper jsonObjectMapper;
-	private DatabaseAccessor databaseAccessor = new DatabaseAccessor();
-	private List<Professor> professorList = new ArrayList<Professor>();
+	private DatabaseAccessor db;
+	private List<Professor> professorListData;
+	private Professor professorDetails;
 
-	public ProfessorService() {
+	public ProfessorService(Context context) {
 		jsonObjectMapper = new JSONObjectMapper();
+		db = ApplicationFactory.getDatabaseAccessor(context);
 	}
 
-	public List<Professor> getProfessorList(Context context)
-			throws InterruptedException, ExecutionException, JSONException {
+	public List<Professor> getProfessorList() throws InterruptedException,
+			ExecutionException, JSONException {
 
-		List<Professor> professorListData = new ArrayList<Professor>();
-
-		// DatabaseHelper dbHelper = new DatabaseHelper(context);
-		// SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-		// Cursor result = db.rawQuery("SELECT * from PROFESSOR", null);
-		Cursor result = databaseAccessor.selectQuery(context);
-		int rowCount = result.getCount();
-
-		if (rowCount == 0) {
-			System.out.println("From server insert to db");
+		professorListData = new ArrayList<Professor>();
+		if (db.isProfessorTableEmpty()) {
 			String url = "http://bismarck.sdsu.edu/rateme/list";
-			NetworkConnection networkConnection = new NetworkConnection();
+			GETNetworkConnection networkConnection = new GETNetworkConnection();
 			String responseBody = networkConnection.execute(url).get();
-
 			if (responseBody != null) {
 				JSONArray jsonProfessorArray;
-
 				jsonProfessorArray = new JSONArray(responseBody);
-
 				professorListData = jsonObjectMapper
-						.jsonProfessorArrayToList(jsonProfessorArray);
-				databaseAccessor.insertProfessorListToDb(professorListData,
-						context);
-
-				// Cursor res = db.rawQuery("SELECT * from PROFESSOR", null);
-				Cursor res = databaseAccessor.selectQuery(context);
-				professorList = databaseAccessor
-						.retrieveProfessorListFromDb(res);
+						.convertJsonProfessorArrayToList(jsonProfessorArray);
+				db.createProfessors(professorListData);
 			}
 		} else {
-			professorList = databaseAccessor
-					.retrieveProfessorListFromDb(result);
+			professorListData = db.retrieveProfessors();
 		}
-
-		return professorList;
+		return professorListData;
 	}
 
-	/*
-	 * public List<Professor> getModifiedProfessorList(Context context) throws
-	 * InterruptedException, ExecutionException, JSONException { List<Professor>
-	 * modifiedProfessorList = new ArrayList<Professor>(); DatabaseHelper
-	 * dbHelper = new DatabaseHelper(context); SQLiteDatabase db =
-	 * dbHelper.getWritableDatabase();
-	 * 
-	 * Calendar currentDate = Calendar.getInstance(); int currentMonth =
-	 * currentDate.get(Calendar.MONTH) + 1; int currentDay =
-	 * currentDate.get(Calendar.DATE); int currentYear =
-	 * currentDate.get(Calendar.YEAR); System.out.println(currentDate + "" +
-	 * currentMonth + "" + currentDay + "" + currentYear); // String urlModified
-	 * = "http://bismark.sdsu.edu/rateme/list/since/" // + currentMonth + "-" +
-	 * currentDay + "-" + currentYear; String urlModified =
-	 * "http://bismarck.sdsu.edu/rateme/list/since/3-15-2012"; NetworkConnection
-	 * networkConnection = new NetworkConnection(); String responseBodyModified
-	 * = networkConnection.execute(urlModified) .get(); if (responseBodyModified
-	 * != null) { JSONArray jsonProfessorArray = new
-	 * JSONArray(responseBodyModified);
-	 * 
-	 * modifiedProfessorList = jsonObjectMapper
-	 * .jsonProfessorArrayToList(jsonProfessorArray);
-	 * databaseAccessor.insertToDb(modifiedProfessorList, db);
-	 * 
-	 * Cursor result = db.rawQuery("SELECT * from PROFESSOR", null);
-	 * professorList = databaseAccessor.retrieveFromDb(result); } return
-	 * modifiedProfessorList; }
-	 */
-
-	public Professor getProfessorDetails(int selectedProfessorId,
-			Context context) throws InterruptedException, ExecutionException,
-			JSONException {
-
-		Professor professorDetailsFromDb = new Professor();
-		Professor nameIdFromDb = new Professor();
-		Cursor result = databaseAccessor.selectProfessorDetails(context,
-				selectedProfessorId);
-		int rowCount = result.getCount();
-		// int count = databaseAccessor.ckeckCursorResult(result);
-
-		if (rowCount == 0) {
+	public Professor getProfessorDetails(int selectedProfessorId)
+			throws InterruptedException, ExecutionException, JSONException {
+		professorDetails = new Professor();
+		if (db.isProfessorDetailsEmpty(selectedProfessorId)) {
 			String url = "http://bismarck.sdsu.edu/rateme/instructor/"
 					+ selectedProfessorId;
-			NetworkConnection networkConnection = new NetworkConnection();
+			GETNetworkConnection networkConnection = new GETNetworkConnection();
 			String responseBody = networkConnection.execute(url).get();
 			JSONObject jsonProfessorDetails = new JSONObject(responseBody);
-			Professor professorDetails = new Professor();
 			professorDetails = jsonObjectMapper
 					.covertJsonObjectToProfessor(jsonProfessorDetails);
-			DatabaseAccessor professorDetailsAccessor = new DatabaseAccessor();
-			System.out.println("Befor insert to db");
-			professorDetailsAccessor.insertProfessorDetails(
-					selectedProfessorId, professorDetails, context);
-			System.out.println("Inserted to db");
-			Cursor res = databaseAccessor.selectProfessorDetails(context,
-					selectedProfessorId);
-
-			professorDetailsFromDb = databaseAccessor
-					.retrieveProfessorDetailsFromDb(res);
-
-			nameIdFromDb = databaseAccessor.retrieveProfessorNameIdFromDb(
-					context, selectedProfessorId);
-			professorDetailsFromDb.setId(nameIdFromDb.getId());
-			professorDetailsFromDb.setFirstName(nameIdFromDb.getFirstName());
-			professorDetailsFromDb.setLastName(nameIdFromDb.getLastName());
-			System.out
-					.println("Retreieved details from db after db insert successful");
-
+			professorDetails.setId(selectedProfessorId);
+			db.addProfessorDetails(professorDetails);
 		} else {
-			// Cursor res = databaseAccessor.selectProfessorDetails(context,
-			// selectedProfessorId);
-			professorDetailsFromDb = databaseAccessor
-					.retrieveProfessorDetailsFromDb(result);
-			nameIdFromDb = databaseAccessor.retrieveProfessorNameIdFromDb(
-					context, selectedProfessorId);
-			professorDetailsFromDb.setId(nameIdFromDb.getId());
-			professorDetailsFromDb.setFirstName(nameIdFromDb.getFirstName());
-			professorDetailsFromDb.setLastName(nameIdFromDb.getLastName());
-			System.out.println("Retreieved details from db");
+			professorDetails = db.retrieveProfessorDetails(selectedProfessorId);
 		}
-
-		return professorDetailsFromDb;
+		return professorDetails;
 	}
 
-	public void getProfessorComments() {
-
+	public List<Comment> getProfessorComments(int selectedProfessorId)
+			throws InterruptedException, ExecutionException, JSONException {
+		List<Comment> comments = new ArrayList<Comment>();
+		if (db.isProfessorCommentsEmpty(selectedProfessorId)) {
+			String url = "http://bismarck.sdsu.edu/rateme/comments/"
+					+ selectedProfessorId;
+			GETNetworkConnection networkConnection = new GETNetworkConnection();
+			String responseBody = networkConnection.execute(url).get();
+			JSONArray jsonArrayComments = new JSONArray(responseBody);
+			JSONObjectMapper jsonObjectmapper = new JSONObjectMapper();
+			comments.addAll(jsonObjectmapper.convertJsonCommentsArrayToList(
+					selectedProfessorId, jsonArrayComments));
+			db.addComments(comments);
+		} else {
+			comments = db.retrieveComments(selectedProfessorId);
+		}
+		return comments;
 	}
 
-	public void submitProfesssorRating() {
-
+	public HttpResponse submitProfessorComments(int selectedProfessorId,
+			String professorComments) throws InterruptedException,
+			ExecutionException {
+		String url = "http://bismarck.sdsu.edu/rateme/comment/"
+				+ selectedProfessorId;
+		POSTNetworkConnection netowrkConnection = new POSTNetworkConnection();
+		HttpResponse httpResponse = netowrkConnection.execute(url,
+				professorComments).get();
+		int responseCode = httpResponse.getStatusLine().getStatusCode();
+		// if (responseCode == 200) {
+		// databaseAccessor.insertProfessorCommentsToDb(context,
+		// selectedProfessorId, professorComments);
+		// }
+		return httpResponse;
 	}
 
-	public void submitProfessorComment() {
+	public HttpResponse submitProfessorRating(int selectedProfessorId,
+			String rating) throws InterruptedException, ExecutionException {
+		String url = "http://bismarck.sdsu.edu/rateme/rating/"
+				+ selectedProfessorId + "/" + rating;
+		POSTNetworkConnection netowrkConnection = new POSTNetworkConnection();
+		HttpResponse httpResponse = netowrkConnection.execute(url, rating)
+				.get();
+		return httpResponse;
+	}
 
+	public Professor getProfessorRating(int selectedProfessorId, String rating)
+			throws InterruptedException, ExecutionException, JSONException {
+		String url = "http://bismarck.sdsu.edu/rateme/rating/"
+				+ selectedProfessorId + "/" + rating;
+		GETNetworkConnection networkConnection = new GETNetworkConnection();
+		String responseBody = networkConnection.execute(url).get();
+		JSONObject jsonObject = new JSONObject(responseBody);
+		Professor professorDetails = new Professor();
+		professorDetails = jsonObjectMapper.getRating(jsonObject);
+		return professorDetails;
 	}
 
 }

@@ -10,7 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import extended.cs.sdsu.edu.domain.Professor;
-import extended.cs.sdsu.edu.service.ProfessorService;
+import extended.cs.sdsu.edu.service.ApplicationFactory;
 
 public class ProfessorListActivity extends ListActivity {
 
@@ -20,8 +20,12 @@ public class ProfessorListActivity extends ListActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		ProfessorService professorService = new ProfessorService();
-		refreshProfessorList(professorService);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		refreshProfessorList();
 	}
 
 	@Override
@@ -30,7 +34,6 @@ public class ProfessorListActivity extends ListActivity {
 		super.onListItemClick(listView, view, position, id);
 		Professor professor = (Professor) listView.getItemAtPosition(position);
 		int selectedProfessorId = professor.getId();
-		// System.out.println(selectedProfessorId);
 
 		Intent professorDetails = new Intent();
 		professorDetails
@@ -42,23 +45,17 @@ public class ProfessorListActivity extends ListActivity {
 		startActivity(professorDetails);
 	}
 
-	private void refreshProfessorList(ProfessorService professorService) {
+	private void refreshProfessorList() {
 		try {
-			professorList = professorService.getProfessorList(this);
+			professorList = ApplicationFactory.getProfessorService(this)
+					.getProfessorList();
 			professorListAdapter = new ProfessorListAdapter(professorList, this);
 			setListAdapter(professorListAdapter);
 			professorListAdapter.refreshList(professorList);
 			professorListAdapter.notifyDataSetChanged();
 
-			// List<Professor> modifiedProfessorList = new
-			// ArrayList<Professor>();
-			// modifiedProfessorList = professorService
-			// .getModifiedProfessorList(this);
-			// professorListAdapter.refreshList(modifiedProfessorList);
-			// professorListAdapter.notifyDataSetChanged();
-
 		} catch (Exception e) {
-			Log.e("RateMyProfessor", e.getMessage(), e);
+			Log.e("RateMyProfessorTablet", e.getMessage(), e);
 		}
 	}
 }

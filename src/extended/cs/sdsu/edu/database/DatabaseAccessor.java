@@ -7,24 +7,26 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import extended.cs.sdsu.edu.domain.Comment;
 import extended.cs.sdsu.edu.domain.Professor;
 
 public class DatabaseAccessor {
 
-	public Cursor selectQuery(Context context) {
-		DatabaseHelper dbHelper = new DatabaseHelper(context);
-		SQLiteDatabase db = dbHelper.getWritableDatabase();
+	private SQLiteDatabase db;
 
-		Cursor result = db.rawQuery("SELECT * from PROFESSOR", null);
-		return result;
+	public DatabaseAccessor(Context context) {
+		DatabaseHelper dbHelper = new DatabaseHelper(context);
+		db = dbHelper.getWritableDatabase();
 	}
 
-	public void insertProfessorListToDb(List<Professor> professorListData,
-			Context context) {
-		DatabaseHelper dbHelper = new DatabaseHelper(context);
-		SQLiteDatabase db = dbHelper.getWritableDatabase();
+	public boolean isProfessorTableEmpty() {
+		Cursor result = db.rawQuery("SELECT * from PROFESSOR", null);
+		int rowCount = result.getCount();
+		result.close();
+		return rowCount == 0;
+	}
 
-		System.out.println("Db insert");
+	public void createProfessors(List<Professor> professorListData) {
 		for (int i = 0; i < professorListData.size(); i++) {
 			Professor professorFromList = professorListData.get(i);
 			ContentValues cv = new ContentValues();
@@ -35,92 +37,106 @@ public class DatabaseAccessor {
 		}
 	}
 
-	public List<Professor> retrieveProfessorListFromDb(Cursor result) {
-
+	public List<Professor> retrieveProfessors() {
 		List<Professor> professorList = new ArrayList<Professor>();
-		System.out.println("From db");
+		Cursor result = db.rawQuery("SELECT * FROM PROFESSOR", null);
 		result.moveToFirst();
+		Professor professor = null;
 		while (result.isAfterLast() == false) {
-			Professor professorDb = new Professor();
-
-			professorDb.setId(result.getInt(result.getColumnIndex("ID")));
-
-			professorDb.setLastName(result.getString(result
+			professor = new Professor();
+			professor.setId(result.getInt(result.getColumnIndex("ID")));
+			professor.setLastName(result.getString(result
 					.getColumnIndex("lastname")));
-
-			professorDb.setFirstName(result.getString(result
+			professor.setFirstName(result.getString(result
 					.getColumnIndex("firstname")));
-			professorList.add(professorDb);
+			professorList.add(professor);
 			result.moveToNext();
 		}
 		result.close();
 		return professorList;
 	}
 
-	public void insertProfessorDetails(int selectedProfessorId,
-			Professor professorDetails, Context context) {
-		System.out.println("In dbAccessor insert details");
-		DatabaseHelper dbHelper = new DatabaseHelper(context);
-		SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-		ContentValues cvProfessorDetails = new ContentValues();
-		cvProfessorDetails.put("ID", selectedProfessorId);
-		cvProfessorDetails.put("office", professorDetails.getOffice());
-		cvProfessorDetails.put("phone", professorDetails.getPhone());
-		cvProfessorDetails.put("email", professorDetails.getEmail());
-		cvProfessorDetails.put("average", professorDetails.getAverage());
-		cvProfessorDetails.put("totalrating",
-				professorDetails.getTotalRatings());
-
-		db.insert("PROFESSOR_DETAILS", null, cvProfessorDetails);
-
+	public boolean isProfessorDetailsEmpty(int selectedProfessorId) {
+		Cursor result = db.rawQuery(
+				"SELECT * from PROFESSOR_DETAILS WHERE ID=?",
+				new String[] { String.valueOf(selectedProfessorId) });
+		int rowCount = result.getCount();
+		result.close();
+		return rowCount == 0;
 	}
 
-	public Cursor selectProfessorDetails(Context context,
-			int selectedProfessorId) {
-		DatabaseHelper dbHelper = new DatabaseHelper(context);
-		SQLiteDatabase db = dbHelper.getWritableDatabase();
+	public void addProfessorDetails(Professor professorDetails) {
+		ContentValues contentValues = new ContentValues();
+		contentValues.put("ID", professorDetails.getId());
+		contentValues.put("office", professorDetails.getOffice());
+		contentValues.put("phone", professorDetails.getPhone());
+		contentValues.put("email", professorDetails.getEmail());
+		contentValues.put("average", professorDetails.getAverage());
+		contentValues.put("totalrating", professorDetails.getTotalRatings());
+
+		db.insert("PROFESSOR_DETAILS", null, contentValues);
+	}
+
+	public Professor retrieveProfessorDetails(int selectedProfessorId) {
+		Professor professorDetails = new Professor();
 		Cursor result = db
 				.rawQuery(
-						"SELECT office,phone,email,average,totalrating from PROFESSOR_DETAILS WHERE ID=?",
+						"SELECT * FROM PROFESSOR,PROFESSOR_DETAILS WHERE PROFESSOR.ID = ?",
 						new String[] { String.valueOf(selectedProfessorId) });
-		return result;
-	}
-
-	public Professor retrieveProfessorDetailsFromDb(Cursor result) {
-		Professor professorDetailsFromDb = new Professor();
 		result.moveToFirst();
-
-		professorDetailsFromDb.setOffice(result.getString(result
+		professorDetails.setId(selectedProfessorId);
+		professorDetails.setFirstName(result.getString(result
+				.getColumnIndex("firstname")));
+		professorDetails.setLastName(result.getString(result
+				.getColumnIndex("lastname")));
+		professorDetails.setOffice(result.getString(result
 				.getColumnIndex("office")));
-		professorDetailsFromDb.setPhone(result.getString(result
+		professorDetails.setPhone(result.getString(result
 				.getColumnIndex("phone")));
-		professorDetailsFromDb.setEmail(result.getString(result
+		professorDetails.setEmail(result.getString(result
 				.getColumnIndex("email")));
-		professorDetailsFromDb.setAverage(result.getFloat(result
+		professorDetails.setAverage(result.getFloat(result
 				.getColumnIndex("average")));
-		professorDetailsFromDb.setTotalRatings(result.getInt(result
+		professorDetails.setTotalRatings(result.getInt(result
 				.getColumnIndex("totalrating")));
 		result.close();
-		// retrieveProfessorIdNameFromDb(result, professorDetailsFromDb);
-		return professorDetailsFromDb;
+		return professorDetails;
 	}
 
-	public Professor retrieveProfessorNameIdFromDb(Context context,
-			int selectedProfessorId) {
-		DatabaseHelper dbHelper = new DatabaseHelper(context);
-		SQLiteDatabase db = dbHelper.getWritableDatabase();
-		Professor nameIDFromDb = new Professor();
-		Cursor result = db.rawQuery("SELECT * from PROFESSOR WHERE ID=?",
+	public boolean isProfessorCommentsEmpty(int selectedProfessorId) {
+		Cursor result = db.rawQuery("SELECT * from COMMENTS WHERE ID=?",
 				new String[] { String.valueOf(selectedProfessorId) });
-		result.moveToFirst();
-		nameIDFromDb.setId(result.getInt(result.getColumnIndex("ID")));
-		nameIDFromDb.setLastName(result.getString(result
-				.getColumnIndex("lastname")));
-
-		nameIDFromDb.setFirstName(result.getString(result
-				.getColumnIndex("firstname")));
+		int rowCount = result.getCount();
 		result.close();
-		return nameIDFromDb;
+		return rowCount == 0;
+	}
+
+	public void addComments(List<Comment> comments) {
+		ContentValues contentValues = new ContentValues();
+		for (int i = 0; i < comments.size(); i++) {
+			Comment comment = comments.get(i);
+			contentValues.put("ID", comment.getProfessorId());
+			contentValues.put("commentsId", comment.getCommentsId());
+			contentValues.put("commentsTxt", comment.getText());
+			contentValues.put("date", comment.getDate());
+			db.insert("COMMENTS", null, contentValues);
+		}
+	}
+
+	public List<Comment> retrieveComments(int selectedProfessorId) {
+		Cursor result = db.rawQuery("SELECT * FROM COMMENTS WHERE ID=?",
+				new String[] { String.valueOf(selectedProfessorId) });
+		List<Comment> professorComments = new ArrayList<Comment>();
+		result.moveToFirst();
+		Comment comment = null;
+		while (result.isAfterLast() == false) {
+			comment = new Comment();
+			comment.setText(result.getString(result
+					.getColumnIndex("commentsTxt")));
+			comment.setText(result.getString(result.getColumnIndex("date")));
+			professorComments.add(comment);
+		}
+		result.close();
+		return professorComments;
 	}
 }

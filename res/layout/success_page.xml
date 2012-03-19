@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stretchColumns="1">
+        
+     <TableRow>
+        <TextView
+            android:padding="3dip"
+            android:text="@string/Rating"
+            android:layout_span="4" 
+            android:textSize="20dip"/>
+    </TableRow>
+
+    <TableRow>
+       <TextView 
+           android:padding="3dip"
+           android:text="@string/average"/>
+       
+       <TextView 
+           android:id="@+id/averageSuccess"
+           android:padding="3dip" 
+           android:layout_gravity="center_horizontal"/>
+       </TableRow>
+       <TableRow >
+       <TextView 
+           android:padding="3dip"
+           android:text="@string/totalRatings" />
+       <TextView 
+           android:id="@+id/totalRatingsSuccess"
+           android:padding="3dip"
+           android:layout_gravity="center_horizontal"/>
+    </TableRow>
+    
+    </TableLayout>
+

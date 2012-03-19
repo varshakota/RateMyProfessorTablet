@@ -15,6 +15,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	static final String EMAIL = "email";
 	static final String AVERAGE = "average";
 	static final String TOTALRATING = "totalrating";
+	static final String COMMENTSTXT = "commentsTxt";
+	static final String DATE = "date";
+	static final String COMMENTSID = "commentsId";
 
 	public DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -33,6 +36,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		professordb
 				.execSQL("CREATE TABLE PROFESSOR_DETAILS (ID INTEGER, office TEXT, phone TEXT,email TEXT,average FLOAT,totalrating INTEGER,FOREIGN KEY(ID) REFERENCES PROFESSOR(ID));");
+
+		professordb
+				.execSQL("CREATE TABLE COMMENTS (ID INTEGER,commentsTxt TEXT,date TEXT,commentsId INTEGER,FOREIGN KEY(ID) REFERENCES PROFESSOR(ID));");
 	}
 
 	@Override

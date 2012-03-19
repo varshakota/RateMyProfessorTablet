@@ -11,24 +11,6 @@ public class Professor {
 	private String rating;
 	private Float average;
 	private int totalRatings;
-	private String text;
-	private String date;
-
-	public String getDate() {
-		return date;
-	}
-
-	public void setDate(String date) {
-		this.date = date;
-	}
-
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
 
 	public Float getAverage() {
 		return average;
