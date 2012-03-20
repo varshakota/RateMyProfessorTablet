@@ -8,11 +8,11 @@ import android.os.Bundle;
 import android.util.Log;
 import extended.cs.sdsu.edu.domain.Comment;
 import extended.cs.sdsu.edu.service.ApplicationFactory;
-import extended.cs.sdsu.edu.service.ProfessorService;
+import extended.cs.sdsu.edu.service.ProfessorCommentsService;
 
 public class ViewProfessorCommentsActivity extends ListActivity {
 	private int selectedProfessorId;
-	private ProfessorService professorService;
+	private ProfessorCommentsService professorCommentsService;
 	private CommentsListAdapter commentsListAdapter;
 	private List<Comment> professorCommentsList;
 
@@ -22,7 +22,7 @@ public class ViewProfessorCommentsActivity extends ListActivity {
 		Bundle bundleProfessorId = getIntent().getExtras();
 		selectedProfessorId = bundleProfessorId.getInt("selectedProfessorID");
 
-		professorService = ApplicationFactory.getProfessorService(this);
+		professorCommentsService = ApplicationFactory.getProfessorCommentsService(this);
 
 	}
 
@@ -35,7 +35,7 @@ public class ViewProfessorCommentsActivity extends ListActivity {
 	private void refreshProfessorComments() {
 		try {
 			professorCommentsList = new ArrayList<Comment>();
-			professorCommentsList = professorService
+			professorCommentsList = professorCommentsService
 					.getProfessorComments(selectedProfessorId);
 			commentsListAdapter = new CommentsListAdapter(
 					professorCommentsList, this);

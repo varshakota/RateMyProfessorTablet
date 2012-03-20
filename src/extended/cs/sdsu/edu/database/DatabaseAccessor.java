@@ -155,7 +155,7 @@ public class DatabaseAccessor {
 			// db.insert("PROFESSOR", null, contentValues);
 			db.update("PROFESSOR", contentValues, "ID=?",
 					new String[] { String.valueOf(professorId) });
-			updateProfessorDetails(professorId);
+			// updateProfessorDetails(professorId);
 		}
 	}
 

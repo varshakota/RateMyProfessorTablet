@@ -10,7 +10,6 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 import extended.cs.sdsu.edu.domain.Professor;
-import extended.cs.sdsu.edu.domain.SharedPreferenceWrapper;
 import extended.cs.sdsu.edu.service.ApplicationFactory;
 import extended.cs.sdsu.edu.service.ProfessorService;
 
@@ -25,7 +24,6 @@ public class SelectedProfessorDetailsActivity extends Activity {
 	private TextView totalRatingTextView;
 	private int selectedProfessorId;
 	private ProfessorService professorDetailsService;
-	private SharedPreferenceWrapper sharedPreferenceWrapper;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -42,7 +40,6 @@ public class SelectedProfessorDetailsActivity extends Activity {
 		Bundle professorId = getIntent().getExtras();
 		selectedProfessorId = professorId.getInt("selectedProfessorID");
 		professorDetailsService = ApplicationFactory.getProfessorService(this);
-		sharedPreferenceWrapper = new SharedPreferenceWrapper(this);
 	}
 
 	@Override

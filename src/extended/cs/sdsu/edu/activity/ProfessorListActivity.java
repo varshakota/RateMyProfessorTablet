@@ -11,20 +11,49 @@ import android.view.View;
 import android.widget.ListView;
 import extended.cs.sdsu.edu.domain.Professor;
 import extended.cs.sdsu.edu.service.ApplicationFactory;
+import extended.cs.sdsu.edu.service.ProfessorChangedListener;
+import extended.cs.sdsu.edu.service.ProfessorService;
 
 public class ProfessorListActivity extends ListActivity {
 
 	private List<Professor> professorList = new ArrayList<Professor>();
-	private ProfessorListAdapter professorListAdapter;
+	private ProfessorListAdapter professorListAdapter = new ProfessorListAdapter(
+			professorList, this);
+	private ProfessorChangedListener professorChangeListener;
+	private ProfessorService professorService;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		professorListAdapter = new ProfessorListAdapter(professorList, this);
+		setListAdapter(professorListAdapter);
+		professorService = ApplicationFactory.getProfessorService(this);
+		initListener();
+	}
+
+	private void initListener() {
+		professorChangeListener = new ProfessorChangedListener() {
+			@Override
+			public void professorListUpdated(List<Professor> newProfessorList) {
+				Log.e("Varun", "professor updated list received");
+				professorListAdapter.refreshList(newProfessorList);
+				professorListAdapter.notifyDataSetChanged();
+			}
+		};
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		professorService
+				.removeProfessorChangedListener(professorChangeListener);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
+		professorService.addProfessorChangedListener(professorChangeListener);
+
 		refreshProfessorList();
 	}
 
@@ -49,14 +78,10 @@ public class ProfessorListActivity extends ListActivity {
 		try {
 			professorList = ApplicationFactory.getProfessorService(this)
 					.getProfessorList();
-			professorListAdapter = new ProfessorListAdapter(professorList, this);
-			setListAdapter(professorListAdapter);
 			professorListAdapter.refreshList(professorList);
 			professorListAdapter.notifyDataSetChanged();
-
 		} catch (Exception e) {
 			Log.e("RateMyProfessorTablet", e.getMessage(), e);
 		}
-
 	}
 }

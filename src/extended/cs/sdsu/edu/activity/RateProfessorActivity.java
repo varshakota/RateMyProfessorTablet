@@ -17,13 +17,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 import extended.cs.sdsu.edu.domain.Professor;
 import extended.cs.sdsu.edu.service.ApplicationFactory;
-import extended.cs.sdsu.edu.service.ProfessorService;
+import extended.cs.sdsu.edu.service.ProfessorCommentsService;
+import extended.cs.sdsu.edu.service.ProfessorRatingService;
 
 public class RateProfessorActivity extends Activity {
 
 	private RatingBar ratingBar;
 	private TextView commentsText;
-	private ProfessorService professorService;
+	private ProfessorRatingService ratingService;
+	private ProfessorCommentsService commentsService;
 	private TextView averageTextView;
 	private TextView totalRatingTextView;
 	private AlertDialog.Builder builder;
@@ -36,7 +38,9 @@ public class RateProfessorActivity extends Activity {
 		setContentView(R.layout.rate_professor);
 		ratingBar = (RatingBar) findViewById(R.id.ratingBar);
 		commentsText = (EditText) findViewById(R.id.commentsText);
-		professorService = ApplicationFactory.getProfessorService(this);
+		ratingService = ApplicationFactory
+				.getProfessorRatingService(this);
+		commentsService = ApplicationFactory.getProfessorCommentsService(this);
 		builder = new AlertDialog.Builder(this);
 		inflater = (LayoutInflater) this
 				.getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -63,9 +67,9 @@ public class RateProfessorActivity extends Activity {
 				Toast.makeText(this, "Enter a rating", Toast.LENGTH_SHORT)
 						.show();
 			} else {
-				int professorCommentsStatusCode = professorService
+				int professorCommentsStatusCode = commentsService
 						.submitProfessorComments(selectedProfessorId, comments);
-				int professorRatingStatusCode = professorService
+				int professorRatingStatusCode = ratingService
 						.submitProfessorRating(selectedProfessorId, rating);
 
 				onSuccessDisplayDialog(professorCommentsStatusCode,
@@ -86,8 +90,8 @@ public class RateProfessorActivity extends Activity {
 		if (professorCommentsStatusCode == 200
 				&& professorRatingStatusCode == 200) {
 			Professor professorWithNewRatings;
-			professorWithNewRatings = professorService.getProfessorRating(
-					selectedProfessorId, rating);
+			professorWithNewRatings = ratingService
+					.getProfessorRating(selectedProfessorId, rating);
 			Float average = professorWithNewRatings.getAverage();
 			Integer totalrating = new Integer(
 					professorWithNewRatings.getTotalRatings());
