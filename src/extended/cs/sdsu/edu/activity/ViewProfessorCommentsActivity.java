@@ -7,8 +7,8 @@ import android.app.ListActivity;
 import android.os.Bundle;
 import android.util.Log;
 import extended.cs.sdsu.edu.domain.Comment;
-import extended.cs.sdsu.edu.service.ProfessorService;
 import extended.cs.sdsu.edu.service.ApplicationFactory;
+import extended.cs.sdsu.edu.service.ProfessorService;
 
 public class ViewProfessorCommentsActivity extends ListActivity {
 	private int selectedProfessorId;
@@ -23,6 +23,7 @@ public class ViewProfessorCommentsActivity extends ListActivity {
 		selectedProfessorId = bundleProfessorId.getInt("selectedProfessorID");
 
 		professorService = ApplicationFactory.getProfessorService(this);
+
 	}
 
 	@Override
@@ -45,4 +46,5 @@ public class ViewProfessorCommentsActivity extends ListActivity {
 			Log.e("RateMyProfessorTablet", e.getMessage(), e);
 		}
 	}
+
 }

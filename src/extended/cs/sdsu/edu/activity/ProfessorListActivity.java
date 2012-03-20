@@ -57,5 +57,6 @@ public class ProfessorListActivity extends ListActivity {
 		} catch (Exception e) {
 			Log.e("RateMyProfessorTablet", e.getMessage(), e);
 		}
+
 	}
 }

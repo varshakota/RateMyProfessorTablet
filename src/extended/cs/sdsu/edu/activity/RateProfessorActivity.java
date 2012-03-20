@@ -1,11 +1,12 @@
 package extended.cs.sdsu.edu.activity;
 
-import org.apache.http.HttpResponse;
+import java.util.concurrent.ExecutionException;
+
+import org.json.JSONException;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,8 +16,8 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import extended.cs.sdsu.edu.domain.Professor;
-import extended.cs.sdsu.edu.service.ProfessorService;
 import extended.cs.sdsu.edu.service.ApplicationFactory;
+import extended.cs.sdsu.edu.service.ProfessorService;
 
 public class RateProfessorActivity extends Activity {
 
@@ -62,54 +63,13 @@ public class RateProfessorActivity extends Activity {
 				Toast.makeText(this, "Enter a rating", Toast.LENGTH_SHORT)
 						.show();
 			} else {
-				HttpResponse professorCommentsResponse = professorService
+				int professorCommentsStatusCode = professorService
 						.submitProfessorComments(selectedProfessorId, comments);
-				HttpResponse professorRatingResponse = professorService
+				int professorRatingStatusCode = professorService
 						.submitProfessorRating(selectedProfessorId, rating);
 
-				if ((professorCommentsResponse.getStatusLine().getStatusCode()) == 200
-						&& (professorRatingResponse.getStatusLine()
-								.getStatusCode()) == 200) {
-					Professor professorWithNewRatings = professorService
-							.getProfessorRating(selectedProfessorId, rating);
-					Float average = professorWithNewRatings.getAverage();
-
-					Integer totalrating = new Integer(
-							professorWithNewRatings.getTotalRatings());
-
-					averageTextView.setText(average.toString());
-					totalRatingTextView.setText(totalrating.toString());
-					builder.setView(layout);
-					builder.setTitle("Comments and Rating submitted successfully!!");
-					builder.setCancelable(false);
-					builder.setPositiveButton("OK",
-							new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-										int id) {
-									finish();
-									Intent professorListActivity = new Intent();
-									professorListActivity
-											.setClassName(
-													"extended.cs.sdsu.edu",
-													"extended.cs.sdsu.edu.ProfessorListActivity");
-									professorListActivity
-											.setAction("cs.assignment.intent.action.LIST_PROFESSORS");
-									startActivity(professorListActivity);
-								}
-							});
-					alertDialog = builder.create();
-					alertDialog.show();
-
-				}
-				if ((professorCommentsResponse.getStatusLine().getStatusCode()) == 501
-						&& (professorRatingResponse.getStatusLine()
-								.getStatusCode() == 501)) {
-					Toast.makeText(
-							this,
-							"Sorry unable to connect to the network. Try again later.",
-							Toast.LENGTH_SHORT).show();
-				}
-
+				onSuccessDisplayDialog(professorCommentsStatusCode,
+						professorRatingStatusCode, selectedProfessorId, rating);
 			}
 		} catch (Exception e) {
 			Toast.makeText(this,
@@ -117,5 +77,45 @@ public class RateProfessorActivity extends Activity {
 					Toast.LENGTH_SHORT).show();
 			Log.e("RateMyProfessorTablet", e.getMessage(), e);
 		}
+	}
+
+	private void onSuccessDisplayDialog(int professorCommentsStatusCode,
+			int professorRatingStatusCode, int selectedProfessorId,
+			String rating) throws InterruptedException, ExecutionException,
+			JSONException {
+		if (professorCommentsStatusCode == 200
+				&& professorRatingStatusCode == 200) {
+			Professor professorWithNewRatings;
+			professorWithNewRatings = professorService.getProfessorRating(
+					selectedProfessorId, rating);
+			Float average = professorWithNewRatings.getAverage();
+			Integer totalrating = new Integer(
+					professorWithNewRatings.getTotalRatings());
+			averageTextView.setText(average.toString());
+			totalRatingTextView.setText(totalrating.toString());
+			builder.setView(layout);
+			builder.setTitle("Comments and Rating submitted successfully!!");
+			builder.setCancelable(false);
+			builder.setPositiveButton("OK",
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							finish();
+							// Intent professorListActivity = new Intent();
+							// professorListActivity
+							// .setClassName("extended.cs.sdsu.edu",
+							// "extended.cs.sdsu.edu.ProfessorListActivity");
+							// professorListActivity
+							// .setAction("cs.assignment.intent.action.LIST_PROFESSORS");
+							// startActivity(professorListActivity);
+						}
+					});
+			alertDialog = builder.create();
+			alertDialog.show();
+		} else {
+			Toast.makeText(this,
+					"Sorry unable to connect to the network. Try again later.",
+					Toast.LENGTH_SHORT).show();
+		}
+
 	}
 }

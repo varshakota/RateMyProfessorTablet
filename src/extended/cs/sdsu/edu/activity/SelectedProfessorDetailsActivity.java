@@ -10,8 +10,9 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 import extended.cs.sdsu.edu.domain.Professor;
-import extended.cs.sdsu.edu.service.ProfessorService;
+import extended.cs.sdsu.edu.domain.SharedPreferenceWrapper;
 import extended.cs.sdsu.edu.service.ApplicationFactory;
+import extended.cs.sdsu.edu.service.ProfessorService;
 
 public class SelectedProfessorDetailsActivity extends Activity {
 
@@ -24,6 +25,7 @@ public class SelectedProfessorDetailsActivity extends Activity {
 	private TextView totalRatingTextView;
 	private int selectedProfessorId;
 	private ProfessorService professorDetailsService;
+	private SharedPreferenceWrapper sharedPreferenceWrapper;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -39,31 +41,8 @@ public class SelectedProfessorDetailsActivity extends Activity {
 
 		Bundle professorId = getIntent().getExtras();
 		selectedProfessorId = professorId.getInt("selectedProfessorID");
-		professorDetailsService = ApplicationFactory
-				.getProfessorService(this);
-
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		Professor professorDetails = new Professor();
-		try {
-
-			professorDetails = professorDetailsService
-					.getProfessorDetails(selectedProfessorId);
-			firstNameTextView.setText(professorDetails.getFirstName());
-			lastNameTextView.setText(professorDetails.getLastName());
-			officeTextView.setText(professorDetails.getOffice());
-			phoneTextView.setText(professorDetails.getPhone());
-			emailTextView.setText(professorDetails.getEmail());
-			averageTextView.setText(String.valueOf(professorDetails
-					.getAverage()));
-			totalRatingTextView.setText(String.valueOf(professorDetails
-					.getTotalRatings()));
-		} catch (Exception e) {
-			Log.e("RateMyProfessorTablet", e.getMessage(), e);
-		}
+		professorDetailsService = ApplicationFactory.getProfessorService(this);
+		sharedPreferenceWrapper = new SharedPreferenceWrapper(this);
 	}
 
 	@Override
@@ -101,9 +80,38 @@ public class SelectedProfessorDetailsActivity extends Activity {
 			rateProfessorIntent.putExtra("selectedProfessorID",
 					selectedProfessorId);
 			startActivity(rateProfessorIntent);
+			// finish();
 			return true;
-
 		}
 		return true;
 	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		displayProfessorDetails();
+
+	}
+
+	private void displayProfessorDetails() {
+		Professor professorDetails = new Professor();
+		try {
+
+			professorDetails = professorDetailsService
+					.getProfessorDetails(selectedProfessorId);
+			firstNameTextView.setText(professorDetails.getFirstName());
+			lastNameTextView.setText(professorDetails.getLastName());
+			officeTextView.setText(professorDetails.getOffice());
+			phoneTextView.setText(professorDetails.getPhone());
+			emailTextView.setText(professorDetails.getEmail());
+			averageTextView.setText(String.valueOf(professorDetails
+					.getAverage()));
+			totalRatingTextView.setText(String.valueOf(professorDetails
+					.getTotalRatings()));
+		} catch (Exception e) {
+			Log.e("RateMyProfessorTablet", e.getMessage(), e);
+		}
+
+	}
+
 }

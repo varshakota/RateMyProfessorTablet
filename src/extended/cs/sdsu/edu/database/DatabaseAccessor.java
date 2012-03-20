@@ -133,10 +133,61 @@ public class DatabaseAccessor {
 			comment = new Comment();
 			comment.setText(result.getString(result
 					.getColumnIndex("commentsTxt")));
-			comment.setText(result.getString(result.getColumnIndex("date")));
+			comment.setDate(result.getString(result.getColumnIndex("date")));
 			professorComments.add(comment);
+			result.moveToNext();
 		}
 		result.close();
 		return professorComments;
+	}
+
+	public void updateProfessor(List<Professor> newProfessorListData) {
+		ContentValues contentValues = new ContentValues();
+		int professorId;
+		for (int i = 0; i < newProfessorListData.size(); i++) {
+			Professor professor = newProfessorListData.get(i);
+			professorId = professor.getId();
+			// db.delete("PROFESSOR", "ID=?",
+			// new String[] { String.valueOf(professorId) });
+			contentValues.put("firstname", professor.getFirstName());
+			contentValues.put("lastname", professor.getLastName());
+			// contentValues.put("ID", professorId);
+			// db.insert("PROFESSOR", null, contentValues);
+			db.update("PROFESSOR", contentValues, "ID=?",
+					new String[] { String.valueOf(professorId) });
+			updateProfessorDetails(professorId);
+		}
+	}
+
+	public void updateProfessorDetails(int professorId) {
+		System.out.println("details update");
+		Professor professor = null;
+		Cursor result = db.rawQuery(
+				"SELECT * FROM PROFESSOR_DETAILS WHERE ID=?",
+				new String[] { String.valueOf(professorId) });
+		result.moveToFirst();
+		ContentValues contentValues = new ContentValues();
+		while (result.isAfterLast() == false) {
+			professor = new Professor();
+			professor.setOffice(result.getString(result
+					.getColumnIndex("office")));
+			professor
+					.setPhone(result.getString(result.getColumnIndex("phone")));
+			professor
+					.setEmail(result.getString(result.getColumnIndex("email")));
+			professor.setAverage(result.getFloat(result
+					.getColumnIndex("average")));
+			professor.setTotalRatings(result.getInt(result
+					.getColumnIndex("totalrating")));
+
+			contentValues.put("office", professor.getOffice());
+			contentValues.put("phone", professor.getPhone());
+			contentValues.put("email", professor.getEmail());
+			contentValues.put("average", professor.getAverage());
+			contentValues.put("totalrating", professor.getTotalRatings());
+			db.update("PROFESSOR_DETAILS", contentValues, "ID=?",
+					new String[] { String.valueOf(professorId) });
+		}
+		result.close();
 	}
 }

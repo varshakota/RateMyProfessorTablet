@@ -1,6 +1,7 @@
 package extended.cs.sdsu.edu.service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -14,27 +15,36 @@ import extended.cs.sdsu.edu.database.DatabaseAccessor;
 import extended.cs.sdsu.edu.domain.Comment;
 import extended.cs.sdsu.edu.domain.JSONObjectMapper;
 import extended.cs.sdsu.edu.domain.Professor;
+import extended.cs.sdsu.edu.domain.SharedPreferenceWrapper;
 import extended.cs.sdsu.edu.network.GETNetworkConnection;
 import extended.cs.sdsu.edu.network.POSTNetworkConnection;
 
 public class ProfessorService {
 	private JSONObjectMapper jsonObjectMapper;
 	private DatabaseAccessor db;
-	private List<Professor> professorListData;
 	private Professor professorDetails;
+	private SharedPreferenceWrapper sharedPreferenceWrapper;
 
 	public ProfessorService(Context context) {
 		jsonObjectMapper = new JSONObjectMapper();
 		db = ApplicationFactory.getDatabaseAccessor(context);
+		sharedPreferenceWrapper = new SharedPreferenceWrapper(context);
 	}
 
 	public List<Professor> getProfessorList() throws InterruptedException,
 			ExecutionException, JSONException {
 
-		professorListData = new ArrayList<Professor>();
+		List<Professor> professorListData = new ArrayList<Professor>();
+		List<Professor> newProfessorListData = new ArrayList<Professor>();
+		String dateAccessed = "";
+		GETNetworkConnection networkConnection = new GETNetworkConnection();
+
 		if (db.isProfessorTableEmpty()) {
 			String url = "http://bismarck.sdsu.edu/rateme/list";
-			GETNetworkConnection networkConnection = new GETNetworkConnection();
+			dateAccessed = getCurrentDateString();
+			sharedPreferenceWrapper.putString("dateAccessed", dateAccessed);
+			// GETNetworkConnection networkConnection = new
+			// GETNetworkConnection();
 			String responseBody = networkConnection.execute(url).get();
 			if (responseBody != null) {
 				JSONArray jsonProfessorArray;
@@ -45,6 +55,19 @@ public class ProfessorService {
 			}
 		} else {
 			professorListData = db.retrieveProfessors();
+			dateAccessed = sharedPreferenceWrapper.getString("dateAccessed");
+			String url = "http://bismarck.sdsu.edu/rateme/list/since/"
+					+ dateAccessed;
+			String responseBody = networkConnection.execute(url).get();
+			if (responseBody != null) {
+				JSONArray jsonProfessorArray;
+				jsonProfessorArray = new JSONArray(responseBody);
+				newProfessorListData = jsonObjectMapper
+						.convertJsonProfessorArrayToList(jsonProfessorArray);
+				db.updateProfessor(newProfessorListData);
+				professorListData = db.retrieveProfessors();
+				// professorListData.addAll(newProfessorListData);
+			}
 		}
 		return professorListData;
 	}
@@ -71,23 +94,54 @@ public class ProfessorService {
 	public List<Comment> getProfessorComments(int selectedProfessorId)
 			throws InterruptedException, ExecutionException, JSONException {
 		List<Comment> comments = new ArrayList<Comment>();
+		List<Comment> newComments = new ArrayList<Comment>();
+		JSONObjectMapper jsonObjectmapper = new JSONObjectMapper();
+		String dateAccessed = "";
+		GETNetworkConnection networkConnection = new GETNetworkConnection();
+
 		if (db.isProfessorCommentsEmpty(selectedProfessorId)) {
 			String url = "http://bismarck.sdsu.edu/rateme/comments/"
 					+ selectedProfessorId;
-			GETNetworkConnection networkConnection = new GETNetworkConnection();
 			String responseBody = networkConnection.execute(url).get();
 			JSONArray jsonArrayComments = new JSONArray(responseBody);
-			JSONObjectMapper jsonObjectmapper = new JSONObjectMapper();
 			comments.addAll(jsonObjectmapper.convertJsonCommentsArrayToList(
 					selectedProfessorId, jsonArrayComments));
+			dateAccessed = getCurrentDateString();
+			sharedPreferenceWrapper.putString("dateAccessed", dateAccessed);
 			db.addComments(comments);
+			System.out.println("from server insert to db");
 		} else {
 			comments = db.retrieveComments(selectedProfessorId);
+			String date = sharedPreferenceWrapper.getString("dateAccessed");
+			if (!(date.equals(getCurrentDateString()))) {
+				String url = "http://bismarck.sdsu.edu/rateme/comments/"
+						+ selectedProfessorId + "/since/" + date;
+				// GETNetworkConnection networkConnection = new
+				// GETNetworkConnection();
+				String responseBody = networkConnection.execute(url).get();
+				if (responseBody != null) {
+					dateAccessed = getCurrentDateString();
+					sharedPreferenceWrapper.putString("dateAccessed",
+							dateAccessed);
+					JSONArray jsonArrayComments = new JSONArray(responseBody);
+					newComments.addAll(jsonObjectmapper
+							.convertJsonCommentsArrayToList(
+									selectedProfessorId, jsonArrayComments));
+					db.addComments(newComments);
+					comments.addAll(newComments);
+				} else {
+					newComments = comments;
+				}
+
+			} else {
+				dateAccessed = getCurrentDateString();
+				sharedPreferenceWrapper.putString("dateAccessed", dateAccessed);
+			}
 		}
 		return comments;
 	}
 
-	public HttpResponse submitProfessorComments(int selectedProfessorId,
+	public int submitProfessorComments(int selectedProfessorId,
 			String professorComments) throws InterruptedException,
 			ExecutionException {
 		String url = "http://bismarck.sdsu.edu/rateme/comment/"
@@ -95,22 +149,19 @@ public class ProfessorService {
 		POSTNetworkConnection netowrkConnection = new POSTNetworkConnection();
 		HttpResponse httpResponse = netowrkConnection.execute(url,
 				professorComments).get();
-		int responseCode = httpResponse.getStatusLine().getStatusCode();
-		// if (responseCode == 200) {
-		// databaseAccessor.insertProfessorCommentsToDb(context,
-		// selectedProfessorId, professorComments);
-		// }
-		return httpResponse;
+		int statusCode = httpResponse.getStatusLine().getStatusCode();
+		return statusCode;
 	}
 
-	public HttpResponse submitProfessorRating(int selectedProfessorId,
-			String rating) throws InterruptedException, ExecutionException {
+	public int submitProfessorRating(int selectedProfessorId, String rating)
+			throws InterruptedException, ExecutionException {
 		String url = "http://bismarck.sdsu.edu/rateme/rating/"
 				+ selectedProfessorId + "/" + rating;
 		POSTNetworkConnection netowrkConnection = new POSTNetworkConnection();
 		HttpResponse httpResponse = netowrkConnection.execute(url, rating)
 				.get();
-		return httpResponse;
+		int statusCode = httpResponse.getStatusLine().getStatusCode();
+		return statusCode;
 	}
 
 	public Professor getProfessorRating(int selectedProfessorId, String rating)
@@ -125,4 +176,12 @@ public class ProfessorService {
 		return professorDetails;
 	}
 
+	private String getCurrentDateString() {
+		Calendar date = Calendar.getInstance();
+		int day = date.get(Calendar.DATE);
+		int month = (date.get(Calendar.MONTH)) + 1;
+		int year = date.get(Calendar.YEAR);
+		String dateString = month + "-" + day + "-" + year;
+		return dateString;
+	}
 }
