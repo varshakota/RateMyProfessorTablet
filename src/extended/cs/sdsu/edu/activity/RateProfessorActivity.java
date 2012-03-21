@@ -38,8 +38,7 @@ public class RateProfessorActivity extends Activity {
 		setContentView(R.layout.rate_professor);
 		ratingBar = (RatingBar) findViewById(R.id.ratingBar);
 		commentsText = (EditText) findViewById(R.id.commentsText);
-		ratingService = ApplicationFactory
-				.getProfessorRatingService(this);
+		ratingService = ApplicationFactory.getProfessorRatingService(this);
 		commentsService = ApplicationFactory.getProfessorCommentsService(this);
 		builder = new AlertDialog.Builder(this);
 		inflater = (LayoutInflater) this
@@ -90,8 +89,8 @@ public class RateProfessorActivity extends Activity {
 		if (professorCommentsStatusCode == 200
 				&& professorRatingStatusCode == 200) {
 			Professor professorWithNewRatings;
-			professorWithNewRatings = ratingService
-					.getProfessorRating(selectedProfessorId, rating);
+			professorWithNewRatings = ratingService.getProfessorRating(
+					selectedProfessorId, rating);
 			Float average = professorWithNewRatings.getAverage();
 			Integer totalrating = new Integer(
 					professorWithNewRatings.getTotalRatings());
@@ -103,14 +102,14 @@ public class RateProfessorActivity extends Activity {
 			builder.setPositiveButton("OK",
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
+							try {
+								ApplicationFactory.getProfessorService(
+										RateProfessorActivity.this)
+										.getUpdatedProfessorListFromServer();
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
 							finish();
-							// Intent professorListActivity = new Intent();
-							// professorListActivity
-							// .setClassName("extended.cs.sdsu.edu",
-							// "extended.cs.sdsu.edu.ProfessorListActivity");
-							// professorListActivity
-							// .setAction("cs.assignment.intent.action.LIST_PROFESSORS");
-							// startActivity(professorListActivity);
 						}
 					});
 			alertDialog = builder.create();

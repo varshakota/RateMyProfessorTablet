@@ -35,7 +35,6 @@ public class ProfessorListActivity extends ListActivity {
 		professorChangeListener = new ProfessorChangedListener() {
 			@Override
 			public void professorListUpdated(List<Professor> newProfessorList) {
-				Log.e("Varun", "professor updated list received");
 				professorListAdapter.refreshList(newProfessorList);
 				professorListAdapter.notifyDataSetChanged();
 			}

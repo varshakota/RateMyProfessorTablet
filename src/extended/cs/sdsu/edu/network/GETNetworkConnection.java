@@ -19,7 +19,7 @@ public class GETNetworkConnection extends AsyncTask<String, Void, String> {
 		try {
 			responsebody = httpClient.execute(httpget, responseHandler);
 		} catch (Exception e) {
-			Log.e("RateMyProfessor", e.getMessage(), e);
+			Log.e("RateMyProfessorTablet", e.getMessage(), e);
 		}
 		httpClient.getConnectionManager().shutdown();
 		return responsebody;

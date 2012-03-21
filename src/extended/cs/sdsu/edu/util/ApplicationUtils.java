@@ -12,4 +12,11 @@ public class ApplicationUtils {
 		String dateString = month + "-" + day + "-" + year;
 		return dateString;
 	}
+
+	public static boolean isResponseBodyEmpty(String responseBody) {
+		if ("[]".equals(responseBody)) {
+			return true;
+		}
+		return false;
+	}
 }

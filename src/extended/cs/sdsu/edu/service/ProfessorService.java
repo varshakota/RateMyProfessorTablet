@@ -50,8 +50,7 @@ public class ProfessorService {
 		}
 	}
 
-	public List<Professor> getProfessorList() throws InterruptedException,
-			ExecutionException, JSONException {
+	public List<Professor> getProfessorList() throws Exception {
 		List<Professor> professorListData = new ArrayList<Professor>();
 		String dateAccessed = "";
 		GETNetworkConnection networkConnection = new GETNetworkConnection();
@@ -75,8 +74,7 @@ public class ProfessorService {
 		return professorListData;
 	}
 
-	private void getUpdatedProfessorListFromServer()
-			throws InterruptedException, ExecutionException, JSONException {
+	public void getUpdatedProfessorListFromServer() throws Exception {
 
 		AsyncTask<Void, Void, List<Professor>> task = new AsyncTask<Void, Void, List<Professor>>() {
 
@@ -107,7 +105,7 @@ public class ProfessorService {
 						return db.retrieveProfessors();
 					}
 				} catch (Exception e) {
-					Log.e("RateMyProfessor", e.getMessage(), e);
+					Log.e("RateMyProfessorTablet", e.getMessage(), e);
 				}
 				httpClient.getConnectionManager().shutdown();
 
@@ -135,4 +133,5 @@ public class ProfessorService {
 		}
 		return professorDetails;
 	}
+
 }
